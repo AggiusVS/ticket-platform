@@ -40,7 +40,7 @@ public class User {
 
     private boolean unavailable = false;
 
-    @OneToMany(mappedBy= "OPERATOR")
+    @OneToMany(mappedBy= "operator")
     private List<Ticket> tickets;
 
     public Long getId() {
