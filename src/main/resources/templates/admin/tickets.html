@@ -8,11 +8,13 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="container mt-4">
         <h1>Lista Ticket</h1>
         <form th:action="@{/admin/tickets}" method="get" class="mb-3">
-            <input type="text" name="keyword" th:value="${keyword}" placeholder="Cerca per titolo" />
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="Cerca per titolo..."
+                class="form-control w-50 d-inline">
             <button class="btn btn-primary" type="submit">Cerca</button>
+            <a th:href="@{/admin/tickets/new}" class="btn btn-success">Nuovo Ticket</a>
         </form>
         <table class="table table-striped">
             <thead>
@@ -27,10 +29,14 @@
             <tbody>
                 <tr th:each="ticket : ${tickets}">
                     <td th:text="${ticket.title}"></td>
-                    <td th:text="${ticket.category.name}"></td>
+                    <td th:text="${ticket.category.nome}"></td>
                     <td th:text="${ticket.status}"></td>
                     <td th:text="${ticket.operator.name}"></td>
-                    <td><a th:href="@{'/admin/tickets/' + ${ticket.id}}" class="btn btn-info">Dettaglio</a></td>
+                    <td>
+                        <a th:href="@{'/admin/tickets/' + ${ticket.id}}" class="btn btn-info btn-sm">Dettaglio</a>
+                        <a th:href="@{'/admin/tickets/' + ${ticket.id} + '/edit'}"
+                            class="btn btn-warning btn-sm">Modifica</a>
+                    </td>
                 </tr>
             </tbody>
         </table>
