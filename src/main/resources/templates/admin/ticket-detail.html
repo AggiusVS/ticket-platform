@@ -11,6 +11,8 @@
 
 <body>
 
+    <div th:replace="fragments/header :: navbar('ADMIN')"></div>
+
     <div class="container mt-4">
         <h2 th:text="'Ticket #' + ${ticket.id} + ': ' + ${ticket.title}"></h2>
         <p><strong>Descrizione:</strong> <span th:text="${ticket.description}"></span></p>

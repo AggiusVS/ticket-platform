@@ -8,6 +8,9 @@
 </head>
 
 <body>
+
+    <div th:replace="fragments/header :: navbar('ADMIN')"></div>
+
     <div class="container mt-4">
         <h1>Lista Ticket</h1>
         <form th:action="@{/admin/tickets}" method="get" class="mb-3">
