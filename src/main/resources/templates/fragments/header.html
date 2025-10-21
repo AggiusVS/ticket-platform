@@ -21,6 +21,9 @@
                         <li class="nav-item" th:if="${role == 'OPERATOR'}">
                             <a class="nav-link" href="/operator/tickets">I miei Ticket</a>
                         </li>
+                        <li class="nav-item" th:if="${role == 'OPERATOR'}">
+                            <a class="nav-link" th:href="@{/operator/profile}">Profilo</a>
+                        </li>
                     </ul>
 
                     <form th:action="@{/logout}" method="post" class="d-inline">
