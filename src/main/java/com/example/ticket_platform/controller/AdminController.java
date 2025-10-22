@@ -3,8 +3,10 @@ package com.example.ticket_platform.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +21,9 @@ import com.example.ticket_platform.repository.CategoryRepository;
 import com.example.ticket_platform.repository.NoteRepository;
 import com.example.ticket_platform.repository.TicketRepository;
 import com.example.ticket_platform.repository.UserRepository;
+import com.example.ticket_platform.security.DatabaseUserDetails;
+
+import jakarta.validation.Valid;
 
 
 
@@ -60,11 +65,21 @@ public class AdminController {
     }
     
     @PostMapping("/tickets/{id}/notes")
-    public String addNote(@PathVariable Long id, @RequestParam String content) {
+    public String addNote(@PathVariable Long id, @RequestParam String content, @AuthenticationPrincipal DatabaseUserDetails userDetails, Model model) {
         Ticket ticket = ticketRepository.findById(id).orElseThrow();
+
+        if (content == null || content.trim().isEmpty()) { 
+            model.addAttribute("ticket", ticket);
+            model.addAttribute("error", "Il contenuto della nota non può essere vuoto."); 
+            return "admin/ticket-detail"; 
+        }
+
+        User author = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
+
         Note note = new Note();
         note.setTicket(ticket);
         note.setContent(content);
+        note.setAuthor(author);
         noteRepository.save(note);
         return "redirect:/admin/tickets/" + id;
     }
@@ -81,7 +96,15 @@ public class AdminController {
     }
     
     @PostMapping("/tickets")
-    public String saveNewTicket(@ModelAttribute Ticket ticket) {
+    public String saveNewTicket(@Valid @ModelAttribute Ticket ticket, BindingResult result, Model model) {
+        if (result.hasErrors()) { 
+            model.addAttribute("availableOperators", userRepository.findAll().stream()
+                    .filter(u -> !u.isUnavailable() && u.getRole() == User.Role.OPERATOR)
+                    .toList());
+            model.addAttribute("categories", categoryRepository.findAll());
+            return "admin/ticket-form";
+        }
+
         ticketRepository.save(ticket);
         return "redirect:/admin/tickets";
     }
@@ -94,6 +117,21 @@ public class AdminController {
                             .filter(u -> !u.isUnavailable() && u.getRole() == User.Role.OPERATOR).toList());
         model.addAttribute("categories", categoryRepository.findAll());
         return "admin/ticket-form";
+    }
+    
+    @PostMapping("/tickets/{id}")
+    public String updateTicket(@PathVariable Long id, @Valid @ModelAttribute("ticket") Ticket ticket, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            model.addAttribute("availableOperators", userRepository.findAll().stream()
+                    .filter(u -> !u.isUnavailable() && u.getRole() == User.Role.OPERATOR)
+                    .toList());
+            model.addAttribute("categories", categoryRepository.findAll());
+            return "admin/ticket-form";
+        }
+
+        ticket.setId(id);
+        ticketRepository.save(ticket);
+        return "redirect:/admin/tickets";
     }
     
 }

@@ -22,11 +22,12 @@
 
         <h4>Note</h4>
         <ul class="list-group mb-3">
-            <li class="list-group-item" th:each="note : ${ticket.notes}">
-                <strong th:text="${note.author.name}">Autore</strong>:
+            <li class="list-group-item"
+                th:each="note : ${ticket.notes != null} ? ${ticket.notes} : ${T(java.util.Collections).emptyList()}">
+                <strong th:text="${note.author != null} ? ${note.author.name} : 'Sconosciuto'">Autore</strong>:
                 <span th:text="${note.content}"></span>
                 <small class="text-muted float-end"
-                    th:text="${#temporals.format(note.createdAt, 'dd/MM/yyyy HH:mm')}"></small>
+                    th:text="${note.createdAt != null} ? ${#temporals.format(note.createdAt, 'dd/MM/yyyy HH:mm')} : ''"></small>
             </li>
         </ul>
         <form th:action="@{'/admin/tickets/' + ${ticket.id} + '/notes'}" method="post">

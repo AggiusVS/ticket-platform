@@ -16,40 +16,57 @@
     <div class="container mt-4">
         <h2 th:text="${ticket.id != null} ? 'Modifica Ticket' : 'Nuovo Ticket'"></h2>
 
-        <form th:action="${ticket.id != null} ? @{/admin/tickets/{id}(id=${ticket.id})} : @{/admin/tickets}"
+        <form th:object="${ticket}"
+            th:action="${ticket.id != null} ? @{/admin/tickets/{id}(id=${ticket.id})} : @{/admin/tickets}"
             method="post">
+
             <div class="mb-3">
                 <label class="form-label">Titolo</label>
-                <input type="text" name="title" class="form-control" th:value="${ticket.title}" required>
+                <input th:field="*{title}" type="text" class="form-control" placeholder="Inserisci il titolo">
+                <div th:if="${#fields.hasErrors('title')}" class="text-danger small">
+                    <p th:errors="*{title}"></p>
+                </div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Descrizione</label>
-                <textarea name="description" class="form-control" th:text="${ticket.description}"></textarea>
+                <textarea th:field="*{description}" class="form-control"
+                    placeholder="Descrizione del problema"></textarea>
+                <div th:if="${#fields.hasErrors('description')}" class="text-danger small">
+                    <p th:errors="*{description}"></p>
+                </div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Categoria</label>
-                <select name="category.id" class="form-select" required>
-                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.nome}"
-                        th:selected="${ticket.category != null} ? ${ticket.category.id == cat.id} : false"></option>
+                <select th:field="*{category.id}" class="form-select">
+                    <option value="">-- Seleziona categoria --</option>
+                    <option th:each="cat : ${categories}" th:value="${cat.id}" th:text="${cat.nome}"></option>
                 </select>
+                <div th:if="${#fields.hasErrors('category')}" class="text-danger small">
+                    <p th:errors="*{category}"></p>
+                </div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Operatore</label>
-                <select name="operator.id" class="form-select" required>
-                    <option th:each="op : ${availableOperators}" th:value="${op.id}" th:text="${op.name}"
-                        th:selected="${ticket.operator != null} ? ${ticket.operator.id == op.id} : false"></option>
+                <select th:field="*{operator.id}" class="form-select">
+                    <option value="">-- Seleziona operatore --</option>
+                    <option th:each="op : ${availableOperators}" th:value="${op.id}" th:text="${op.name}"></option>
                 </select>
+                <div th:if="${#fields.hasErrors('operator')}" class="text-danger small">
+                    <p th:errors="*{operator}"></p>
+                </div>
             </div>
 
             <div class="mb-3">
                 <label class="form-label">Stato</label>
-                <select name="status" class="form-select">
+                <select th:field="*{status}" class="form-select">
                     <option th:each="s : ${T(com.example.ticket_platform.model.Ticket.Status).values()}" th:value="${s}"
-                        th:text="${s}" th:selected="${ticket.status == s}"></option>
+                        th:text="${s}"></option>
                 </select>
+                <div th:if="${#fields.hasErrors('status')}" class="text-danger small">
+                    <p th:errors="*{status}"></p>
+                </div>
             </div>
 
             <button type="submit" class="btn btn-success">Salva</button>
