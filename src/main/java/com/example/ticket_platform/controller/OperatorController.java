@@ -4,7 +4,9 @@ import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,8 +24,6 @@ import com.example.ticket_platform.repository.NoteRepository;
 import com.example.ticket_platform.repository.TicketRepository;
 import com.example.ticket_platform.repository.UserRepository;
 import com.example.ticket_platform.security.DatabaseUserDetails;
-
-import jakarta.validation.Valid;
 
 
 
@@ -106,31 +106,40 @@ public class OperatorController {
     }
 
     @PostMapping("/profile")
-    public String updateProfile(@Valid @ModelAttribute("operator") User formOperator, BindingResult result, @AuthenticationPrincipal DatabaseUserDetails userDetails, Model model) {
+    public String updateProfile(@ModelAttribute("operator") User formOperator, BindingResult result, @AuthenticationPrincipal DatabaseUserDetails userDetails, Model model) {
         if(result.hasErrors()) {
             model.addAttribute("operator", formOperator);
             return "operator/profile";
         }
         User user = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
 
-        if (formOperator.isUnavailable()) {
+        if (formOperator.getUnavailable() != null && formOperator.getUnavailable()) {
         List<Ticket> activeTickets = ticketRepository.findByOperatorAndStatusIn(
                 user, List.of(Ticket.Status.TODO, Ticket.Status.IN_PROGRESS)
         );
-
         if (!activeTickets.isEmpty()) {
             model.addAttribute("errorUnavailable", "Impossibile procedere: hai ticket attivi!");
-            model.addAttribute("operator", user);
+            model.addAttribute("operator", formOperator);
             return "operator/profile";
         }
+
+
     }
         user.setName(formOperator.getName());
-        user.setUnavailable(formOperator.isUnavailable());
+        Boolean unavailable = formOperator.getUnavailable() != null && formOperator.getUnavailable();
+        user.setUnavailable(unavailable);
+
         userRepository.saveAndFlush(user);
-        User updatedUser = userRepository.findByEmail(userDetails.getUsername()).orElseThrow();
-        model.addAttribute("operator", updatedUser);
-        model.addAttribute("successMessage", "Profilo aggiornato correttamente!");
-        return "operator/profile";
+
+        DatabaseUserDetails updatedDetails = new DatabaseUserDetails(user);
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(
+                        updatedDetails,
+                        updatedDetails.getPassword(),
+                        updatedDetails.getAuthorities()
+                );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return "redirect:/operator/profile";
     }
     
 }

@@ -23,9 +23,8 @@
             </div>
 
             <div class="mb-3 form-check">
-                <input type="hidden" name="_unavailable" value="off" />
-                <input type="checkbox" th:field="*{unavailable}" class="form-check-input">
-                <label class="form-check-label">Non disponibile</label>
+                <input type="checkbox" th:field="*{unavailable}" class="form-check-input" id="unavailableCheck" />
+                <label class="form-check-label" for="unavailableCheck">Non disponibile</label>
                 <div class="text-danger mb-3" th:if="${errorUnavailable}" th:text="${errorUnavailable}"></div>
                 <small class="text-muted d-block">
                     Puoi disattivarti solo se non hai ticket in TO_DO o IN_PROGRESS

@@ -38,7 +38,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    private boolean unavailable = false;
+    @Column(nullable=false)
+    private Boolean unavailable = false;
 
     @OneToMany(mappedBy= "operator")
     private List<Ticket> tickets;
@@ -83,11 +84,11 @@ public class User {
         this.role = role;
     }
 
-    public boolean isUnavailable() {
+    public Boolean getUnavailable() {
         return unavailable;
     }
 
-    public void setUnavailable(boolean unavailable) {
+    public void setUnavailable(Boolean unavailable) {
         this.unavailable = unavailable;
     }
 

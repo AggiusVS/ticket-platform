@@ -22,7 +22,7 @@ public class Ticket {
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
+    @NotBlank(message="Il titolo del ticket è obbligatorio")
     private String title;
 
     private String description;
@@ -32,11 +32,11 @@ public class Ticket {
 
     
     @ManyToOne
-    @NotNull
+    @NotNull(message="Inserire una categoria")
     private Category category;
     
     @ManyToOne
-    @NotNull
+    @NotNull(message="Assegnare il ticket ad un operatore")
     private User operator;
 
     private LocalDateTime createdAt = LocalDateTime.now();

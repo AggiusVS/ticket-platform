@@ -89,7 +89,7 @@ public class AdminController {
         Ticket ticket = new Ticket();
         model.addAttribute("ticket", ticket);
         model.addAttribute("availableOperators", userRepository.findAll().stream()
-                            .filter(u -> !u.isUnavailable() && u.getRole() == User.Role.OPERATOR).toList());
+                            .filter(u -> !u.getUnavailable() && u.getRole() == User.Role.OPERATOR).toList());
         model.addAttribute("categories", categoryRepository.findAll());
         return "admin/ticket-form";
                             
@@ -99,11 +99,14 @@ public class AdminController {
     public String saveNewTicket(@Valid @ModelAttribute Ticket ticket, BindingResult result, Model model) {
         if (result.hasErrors()) { 
             model.addAttribute("availableOperators", userRepository.findAll().stream()
-                    .filter(u -> !u.isUnavailable() && u.getRole() == User.Role.OPERATOR)
+                    .filter(u -> !u.getUnavailable() && u.getRole() == User.Role.OPERATOR)
                     .toList());
             model.addAttribute("categories", categoryRepository.findAll());
             return "admin/ticket-form";
         }
+
+        ticket.setCategory(categoryRepository.findById(ticket.getCategory().getId()).orElseThrow(() -> new IllegalArgumentException("Categoria non valida")));
+        ticket.setOperator(userRepository.findById(ticket.getOperator().getId()).orElseThrow(() -> new IllegalArgumentException("Operatore non valido")));
 
         ticketRepository.save(ticket);
         return "redirect:/admin/tickets";
@@ -114,7 +117,7 @@ public class AdminController {
         Ticket ticket = ticketRepository.findById(id).orElseThrow();
         model.addAttribute("ticket", ticket);
         model.addAttribute("availableOperators", userRepository.findAll().stream()
-                            .filter(u -> !u.isUnavailable() && u.getRole() == User.Role.OPERATOR).toList());
+                            .filter(u -> !u.getUnavailable() && u.getRole() == User.Role.OPERATOR).toList());
         model.addAttribute("categories", categoryRepository.findAll());
         return "admin/ticket-form";
     }
@@ -123,7 +126,7 @@ public class AdminController {
     public String updateTicket(@PathVariable Long id, @Valid @ModelAttribute("ticket") Ticket ticket, BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("availableOperators", userRepository.findAll().stream()
-                    .filter(u -> !u.isUnavailable() && u.getRole() == User.Role.OPERATOR)
+                    .filter(u -> !u.getUnavailable() && u.getRole() == User.Role.OPERATOR)
                     .toList());
             model.addAttribute("categories", categoryRepository.findAll());
             return "admin/ticket-form";
