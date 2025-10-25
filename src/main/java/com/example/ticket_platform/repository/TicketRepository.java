@@ -11,9 +11,11 @@ import com.example.ticket_platform.model.User;
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     
     List<Ticket> findByCategory(Category category);
+    List<Ticket> findByCategoryId(Long categoryId);
     List<Ticket> findByStatus(Ticket.Status status);
     List<Ticket> findByTitleContainingIgnoreCase(String keyword);
     List<Ticket> findByOperatorId(Long operatorId);
     List<Ticket> findByOperator(User operator);
     List<Ticket> findByOperatorAndStatusIn(User operator, List<Ticket.Status> statuses);
+    List<Ticket> findByCategoryIdAndStatus(Long categoryId, Ticket.Status status);
 }
